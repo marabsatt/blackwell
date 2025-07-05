@@ -38,11 +38,11 @@ df = pd.concat([df_500, df_nas], ignore_index=True)
 
 st.set_page_config(page_title="Pair's Trading Strategy Dashboard",
                    page_icon=":chart_with_upwards_trend:", 
-                   layout='centered',
+                   layout='wide',
                    initial_sidebar_state='expanded', 
                    menu_items={
                        'Report a bug': "https://github.com/marabsatt/blackwell/issues",
-                       'Connect with me': "https://www.linkedin.com/in/marabsatt/",
+                       'Get help': "https://www.linkedin.com/in/marabsatt/",
                        'About': "This is a stock data dashboard app to analyze and visualize cointegrated stocks. For educational purposes only."
                     }
                     )
@@ -51,10 +51,10 @@ st.set_page_config(page_title="Pair's Trading Strategy Dashboard",
 st.title("Pair's Trading Strategy Dashboard")
 
 # Sidebar for user input
-st.sidebar.header('User Input Features')
+st.sidebar.header('Select An Industry Sector')
 user_sector = st.sidebar.selectbox(
     'Select A Sector', 
-    df[df['GICS Sub-Industry']].unique().tolist()
+    df['GICS Sub-Industry'].unique().tolist()
     )
 
 # Page content
@@ -64,9 +64,9 @@ with col1:
     # Filter the DataFrame based on user input
     ticker_list = df[df['GICS Sub-Industry'] == user_sector]['Symbol'].unique().tolist()
     current_date = dt.datetime.now().strftime('%Y-%m-%d')
-    start_date = current_date - relativedelta(years=5)
-    start_date = start_date.strftime('%Y-%m-%d')
+    start_date = (dt.datetime.now() - relativedelta(years=5)).strftime('%Y-%m-%d')
     df = yf.download(ticker_list, start=start_date, end=current_date)['Close']
+    df.dropna(inplace=True)
 
     def cointegration_pairs(df, threshold=0.05):
         pairs = []
@@ -84,7 +84,11 @@ with col1:
     for pair in sorted_pairs:
         pvalues = [pair[2] for pair in sorted_pairs]
 
-    highest_p_val = sorted_pairs[-1][0:2]
+    if sorted_pairs:
+        highest_p_val = sorted_pairs[-1][0:2]
+    else:
+        st.error("No cointegrated pairs found. Please try a different sector or adjust the parameters.")
+        st.stop()
 
     # Create a matrix of p-values
     pvalues_matrix = np.zeros((len(ticker_list), len(ticker_list)))
@@ -108,13 +112,7 @@ with col1:
         return (series - series.mean()) / np.std(series)
 
     # Spread plot with buy and sell signals
-    zscore(spread).plot(figsize=(21,7))
-    plt.axhline(zscore(spread).mean(), color='black', linestyle='--')
-    plt.axhline(1.0, color='red', linestyle='--')
-    plt.axhline(-1.0, color='green', linestyle='--')
-    plt.legend(['Spread Z-Score', 'Mean', 'Upper Band (Sell Signal)', 'Lower Band (Buy Signal)'])
-
-    fig, ax = plt.subplots(figsize=(21, 7))
+    fig, ax = plt.subplots(figsize=(21, 10))
     zscore(spread).plot(ax=ax)
     ax.axhline(zscore(spread).mean(), color='black', linestyle='--')
     ax.axhline(1.0, color='red', linestyle='--')
@@ -126,20 +124,21 @@ with col1:
         'Lower Band (Buy Signal)'
     ])
 
-    # 2. Render it in Streamlit
     st.pyplot(fig, use_container_width=True)
 
     # Plot the closing prices of the two stocks
-    plt.figure(figsize=(21, 7))
-    plt.plot(stock1, lw=1.5, label=f"Close Price of {highest_p_val[0]}")
-    plt.plot(stock2, lw=1.5, label=f"Close Price of {highest_p_val[1]}")
-    plt.grid(True)
-    plt.legend(loc=0)
 
-    plt.axis('tight')
-    plt.xlabel('Dates')
-    plt.ylabel('Price')
-    plt.title(f"Closing Price of {highest_p_val[0]} and {highest_p_val[1]}")
+    fig, ax = plt.subplots(figsize=(21, 7))
+    ax.plot(stock1, lw=1.5, label=f"Close Price of {highest_p_val[0]}")
+    ax.plot(stock2, lw=1.5, label=f"Close Price of {highest_p_val[1]}")
+    ax.grid(True)
+    ax.legend(loc=0)
+    ax.set(xlabel="Dates",
+        ylabel="Price",
+        title=f"Closing Price of {highest_p_val[0]} and {highest_p_val[1]}")
+    ax.axis("tight")
+
+    st.pyplot(fig, use_container_width=True)
 
     # Backtesting performance of the strategy
     bt_df = pd.concat([zscore(spread), stock2 - b * stock1], axis=1)
@@ -152,3 +151,19 @@ with col1:
     returns = bt_df.position.pct_change() * bt_df.side
     returns.cumsum().plot(figsize=(13,7), title="Cumulative Returns")
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+    cumulative_returns = returns.cumsum()
+
+    # 2. Create a Matplotlib figure & axes
+    fig, ax = plt.subplots(figsize=(13, 7))
+    ax.plot(cumulative_returns, label="Cumulative Returns")
+    ax.set_title("Cumulative Returns")
+    ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Cumulative Return")
+
+    # (Optional) If you want a legend:
+    ax.legend()
+
+    # 4. Render it in Streamlit, auto-sized to the container
+    st.pyplot(fig, use_container_width=True)
