@@ -179,30 +179,30 @@ with col1:
 
     st.pyplot(fig, use_container_width=True)
 
-    st.subheader(f"Options Activity for {ticker_1.info['displayName'], lowest_p_val[0]}", divider=True,
+    st.subheader(f"Options Activity for {ticker_1.info['longName'], lowest_p_val[0]}", divider=True,
                  help="The table below shows the options activity for the selected stock. \n" \
                  "You can see the available call and put options, their strike prices, expiration dates, and other details. \n" \
                  "This information can help you make informed decisions about trading options."
                  )
     call_opt = ticker_1.option_chain((ticker_1.options[0])).calls.sort_values('strike')
     put_opt = ticker_1.option_chain((ticker_1.options[0])).puts.sort_values('strike')
-    st.write(f"{ticker_1.info['displayName']} Calls")
+    st.write(f"{ticker_1.info['longName']} Calls")
     st.dataframe(call_opt)
     st.markdown('***')
-    st.write(f"{ticker_1.info['displayName']} Puts")
+    st.write(f"{ticker_1.info['longName']} Puts")
     st.dataframe(put_opt)
 
-    st.subheader(f"Options Activity for {ticker_2.info['displayName'], lowest_p_val[1]}", divider=True,
+    st.subheader(f"Options Activity for {ticker_2.info['longName'], lowest_p_val[1]}", divider=True,
                  help="The table below shows the options activity for the selected stock. \n" \
                  "You can see the available call and put options, their strike prices, expiration dates, and other details. \n" \
                  "This information can help you make informed decisions about trading options."
                  )
     call_opt = ticker_2.option_chain((ticker_2.options[1])).calls.sort_values('strike')
     put_opt = ticker_2.option_chain((ticker_2.options[1])).puts.sort_values('strike')
-    st.write(f"{ticker_2.info['displayName']} Calls")
+    st.write(f"{ticker_2.info['longName']} Calls")
     st.dataframe(call_opt)
     st.markdown('***')
-    st.write(f"{ticker_2.info['displayName']} Puts")
+    st.write(f"{ticker_2.info['longName']} Puts")
     st.dataframe(put_opt)
 
 with col2:
@@ -238,7 +238,7 @@ with col2:
     else:
         st.write(f"The current spread of {df['spread'][-1]:.2f} is within the boundaries ({lower_boundary:.2f}, {upper_boundary:.2f}), no action needed.")
     
-    st.subheader(f"Recent News for {ticker_1.info['displayName']}", divider=True)
+    st.subheader(f"Recent News for {ticker_1.info['longName']}", divider=True)
     for i in range(len(ticker_1_news[0:3])):
         st.write(f"Title: {ticker_1_news[i]['content']['title']}")
         st.write(f"Summary: {ticker_1_news[i]['content']['summary']}")
@@ -246,7 +246,7 @@ with col2:
         st.write(f"Published Date: {ticker_1_news[i]['content']['pubDate']}")
         st.markdown("---")
 
-    st.subheader(f"Recent News for {ticker_2.info['displayName']}", divider=True)
+    st.subheader(f"Recent News for {ticker_2.info['longName']}", divider=True)
     for i in range(len(ticker_2_news[0:3])):
         st.write(f"Title: {ticker_2_news[i]['content']['title']}")
         st.write(f"Summary: {ticker_2_news[i]['content']['summary']}")
