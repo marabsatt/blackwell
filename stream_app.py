@@ -4,17 +4,23 @@ import streamlit as st
 # import class for financial data
 import yfinance as yf 
 
+# import classes for data manipulation and visualization
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+
+# import classes for statistical analysis
 import statsmodels.api as sm
 from statsmodels.tsa.stattools import coint
-import datetime as dt
-from dateutil.relativedelta import relativedelta
+
+# import classes for web scraping
 import requests
 from bs4 import BeautifulSoup
 
-# from rapidfuzz import process, fuzz
+# import classes for supporting functionalities
+import datetime as dt
+from dateutil.relativedelta import relativedelta
+
 
 sp500_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 
@@ -129,6 +135,7 @@ ticker_1_news = ticker_1.get_news()
 ticker_2_news = ticker_2.get_news()
 
 with col1:
+    
     # Spread plot with buy and sell signals
     fig, ax = plt.subplots(figsize=(21, 10))
     zscore(spread).plot(ax=ax)
