@@ -150,4 +150,4 @@ This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for d
 * [ib\_insync](https://github.com/erdewit/ib_insync) for easy IBKR API access.
 * [Statsmodels documentation](https://www.statsmodels.org/) for time-series tools.
 * [Scikit-learn](https://scikit-learn.org/) for machine learning utilities.
-* Inspired by various pairs trading strategy tutorials and academic research.
+* Inspired by various pairs trading strategy research.
